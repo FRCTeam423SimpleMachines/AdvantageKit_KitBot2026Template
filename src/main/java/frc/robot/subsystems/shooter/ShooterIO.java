@@ -11,4 +11,17 @@ public interface ShooterIO {
   public default void updateInputs(ShooterIOInputs inputs) {}
 
   public default void runShooter(double voltage) {}
-}
+
+  public default void runAtSpeed(double speed) {}
+
+  public default void runAtTarget() {}
+
+  public default void runAtTarget(double RPM) {}
+
+  public default void setTargetRPM(double RPM) {}
+
+  public default void incrementTargetRPM(double increment) {}
+
+  public default void setTargetRun(double RPM) {}
+  }
+
