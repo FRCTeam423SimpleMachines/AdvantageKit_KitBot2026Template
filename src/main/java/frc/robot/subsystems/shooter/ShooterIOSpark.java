@@ -5,15 +5,11 @@ import static frc.robot.util.SparkUtil.ifOk;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
-<<<<<<< Updated upstream
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 import static frc.robot.util.SparkUtil.ifOk;
 
-=======
->>>>>>> Stashed changes
 public class ShooterIOSpark implements ShooterIO {
   private final SparkFlex shooter =
       new SparkFlex(ShooterConstants.shooterCanID, MotorType.kBrushless);
@@ -33,15 +29,8 @@ public class ShooterIOSpark implements ShooterIO {
   }
 
   @Override
-<<<<<<< Updated upstream
   public void runShooter(double voltage) {
     shooter.setVoltage(voltage);
-=======
-  public void runShooter(double speed) {
-    // TODO Auto-generated method stub
-    shooter.set(speed);
->>>>>>> Stashed changes
-  }
 
   @Override
   public void runAtSpeed(double speed) {
@@ -72,5 +61,6 @@ public class ShooterIOSpark implements ShooterIO {
   public void setTargetRun(double RPM) {
     TargetRPM = RPM;
     shooter.setVoltage(pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM));
-  }
+    }
+}
 }

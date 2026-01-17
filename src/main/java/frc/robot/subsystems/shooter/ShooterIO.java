@@ -10,7 +10,6 @@ public interface ShooterIO {
 
   public default void updateInputs(ShooterIOInputs inputs) {}
 
-<<<<<<< Updated upstream
   public default void runShooter(double voltage) {}
 
   public default void runAtSpeed(double speed) {}
@@ -24,9 +23,6 @@ public interface ShooterIO {
   public default void incrementTargetRPM(double increment) {}
 
   public default void setTargetRun(double RPM) {}
-  }
 
-=======
   public default void runShooter(double speed) {}
 }
->>>>>>> Stashed changes
