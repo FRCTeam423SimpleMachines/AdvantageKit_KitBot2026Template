@@ -10,20 +10,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveIO;
-import frc.robot.subsystems.drive.DriveIOSim;
-import frc.robot.subsystems.drive.DriveIOTalonSRX;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.superstructure.Superstructure;
-import frc.robot.subsystems.superstructure.SuperstructureIO;
-import frc.robot.subsystems.superstructure.SuperstructureIOSim;
-import frc.robot.subsystems.superstructure.SuperstructureIOTalonSRX;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSpark;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,54 +25,58 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
-  private final Superstructure superstructure;
+  // private final Drive drive;
+  // private final Superstructure superstructure;
+  private final Shooter shooter;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+  // private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        drive = new Drive(new DriveIOTalonSRX(), new GyroIOPigeon2());
-        superstructure = new Superstructure(new SuperstructureIOTalonSRX());
+        // drive = new Drive(new DriveIOTalonSRX(), new GyroIOPigeon2());
+        // superstructure = new Superstructure(new SuperstructureIOTalonSRX());
+        shooter = new Shooter(new ShooterIOSpark());
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive = new Drive(new DriveIOSim(), new GyroIO() {});
-        superstructure = new Superstructure(new SuperstructureIOSim());
+        // drive = new Drive(new DriveIOSim(), new GyroIO() {});
+        // superstructure = new Superstructure(new SuperstructureIOSim());
+        shooter = new Shooter(new ShooterIOSim());
         break;
 
       default:
         // Replayed robot, disable IO implementations
-        drive = new Drive(new DriveIO() {}, new GyroIO() {});
-        superstructure = new Superstructure(new SuperstructureIO() {});
+        // drive = new Drive(new DriveIO() {}, new GyroIO() {});
+        // superstructure = new Superstructure(new SuperstructureIO() {});
+        shooter = new Shooter(new ShooterIO() {});
         break;
     }
 
     // Set up auto routines
-    NamedCommands.registerCommand("Launch", superstructure.launch().withTimeout(6.0));
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // NamedCommands.registerCommand("Launch", superstructure.launch().withTimeout(6.0));
+    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -94,14 +90,15 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default drive command, normal arcade drive
-    drive.setDefaultCommand(
-        DriveCommands.arcadeDrive(
-            drive, () -> -controller.getLeftY(), () -> -controller.getRightX()));
+    // drive.setDefaultCommand(
+    //     DriveCommands.arcadeDrive(
+    //         drive, () -> -controller.getLeftY(), () -> -controller.getRightX()));
 
     // Control bindings for superstructure
-    controller.leftBumper().whileTrue(superstructure.intake());
-    controller.rightBumper().whileTrue(superstructure.launch());
-    controller.a().whileTrue(superstructure.eject());
+    // controller.leftBumper().whileTrue(superstructure.intake());
+    // controller.rightBumper().whileTrue(superstructure.launch());
+    // controller.a().whileTrue(superstructure.eject());
+    controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(.5), shooter));
   }
 
   /**
@@ -110,6 +107,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    // return autoChooser.get();
+    return null;
   }
 }

@@ -11,6 +11,10 @@ public class Shooter extends SubsystemBase {
     this.io = io;
   }
 
+  public void runShooter(double speed) {
+    io.runShooter(speed);
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
