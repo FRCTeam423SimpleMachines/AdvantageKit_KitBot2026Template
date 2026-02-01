@@ -40,21 +40,39 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        // drive = new Drive(new DriveIOTalonSRX(), new GyroIOPigeon2());
+        // drive =
+        //     new Drive(
+        //         new GyroIONavX(),
+        //         new ModuleIOSpark(0),
+        //         new ModuleIOSpark(1),
+        //         new ModuleIOSpark(2),
+        //         new ModuleIOSpark(3));
         // superstructure = new Superstructure(new SuperstructureIOTalonSRX());
         shooter = new Shooter(new ShooterIOSpark());
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        // drive = new Drive(new DriveIOSim(), new GyroIO() {});
-        // superstructure = new Superstructure(new SuperstructureIOSim());
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIOSim(),
+        //         new ModuleIOSim(),
+        //         new ModuleIOSim(),
+        //         new ModuleIOSim());
+        // // superstructure = new Superstructure(new SuperstructureIOSim());
         shooter = new Shooter(new ShooterIOSim());
         break;
 
       default:
         // Replayed robot, disable IO implementations
-        // drive = new Drive(new DriveIO() {}, new GyroIO() {});
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {});
         // superstructure = new Superstructure(new SuperstructureIO() {});
         shooter = new Shooter(new ShooterIO() {});
         break;
@@ -91,15 +109,45 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default drive command, normal arcade drive
     // drive.setDefaultCommand(
-    //     DriveCommands.arcadeDrive(
-    //         drive, () -> -controller.getLeftY(), () -> -controller.getRightX()));
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () -> -controller.getLeftY(),
+    //         () -> -controller.getLeftX(),
+    //         () -> -controller.getRightX()));
+
+    // // Lock to 0° when A button is held
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> Rotation2d.kZero));
+
+    // // Switch to X pattern when X button is pressed
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // Reset gyro to 0° when B button is pressed
+    // controller
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+    //                 drive)
+    //             .ignoringDisable(true));
 
     // Control bindings for superstructure
     // controller.leftBumper().whileTrue(superstructure.intake());
     // controller.rightBumper().whileTrue(superstructure.launch());
     // controller.a().whileTrue(superstructure.eject());
-    controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(.5), shooter));
-  }
+    shooter.setDefaultCommand(shooter.runAtTarget());
+    controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
+    controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));
+    controller.b().whileTrue(new RunCommand(() -> shooter.setTargetRPM(0), shooter));
+  } 
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
