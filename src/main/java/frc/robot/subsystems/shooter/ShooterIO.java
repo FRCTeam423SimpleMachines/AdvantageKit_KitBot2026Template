@@ -10,6 +10,8 @@ public interface ShooterIO {
     public double secondFlywheelRPM = 0;
     public boolean laser1 = false;
     public boolean laser2 = false;
+    public double turretTargetAngle = 0;
+    public double turretAngle = 0;
   }
 
   public default void updateInputs(ShooterIOInputs inputs) {}
@@ -29,4 +31,8 @@ public interface ShooterIO {
   public default void runShooter(double speed) {}
 
   public default void setSecondFlywheel(double speed) {}
+
+  public default void setTurretAngle(double angle) {}
+
+  public default void setTurretSpeed(double speed) {}
 }
