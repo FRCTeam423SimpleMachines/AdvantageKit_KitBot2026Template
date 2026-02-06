@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class ShooterIOSim implements ShooterIO {
   private final DCMotorSim m_flywheel;
-  private final DCMotorSim m_turret; 
+  private final DCMotorSim m_turret;
 
   public ShooterIOSim() {
     m_flywheel =
@@ -15,8 +15,7 @@ public class ShooterIOSim implements ShooterIO {
             DCMotor.getNeo550(1));
     m_turret =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.004, 10),
-            DCMotor.getNEO(1));
+            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), 0.004, 10), DCMotor.getNEO(1));
   }
 
   @Override

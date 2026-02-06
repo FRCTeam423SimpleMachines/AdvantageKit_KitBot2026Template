@@ -20,8 +20,8 @@ public class Shooter extends SubsystemBase {
     io.incrementTargetRPM(increment);
   }
 
-  public void setTargetRPM(double RPM) {
-    io.setTargetRPM(RPM);
+  public void setTargetState(double RPM, double turretPos) {
+    io.setTargetRPM(RPM, turretPos / 1.0);
   }
 
   public void runSecondFlywheel(double speed) {

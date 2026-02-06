@@ -6,7 +6,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -16,21 +15,24 @@ public class ShooterIOSpark implements ShooterIO {
       new SparkFlex(ShooterConstants.shooterCanID, MotorType.kBrushless);
   private final SparkFlex shooter2 =
       new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
-  private final SparkMax turret = 
-      new SparkMax(ShooterConstants.turretCanID, com.revrobotics.spark.SparkLowLevel.MotorType.kBrushless);
-  private final RelativeEncoder turretEncoder = turret.getEncoder(); 
+  private final SparkMax turret =
+      new SparkMax(
+          ShooterConstants.turretCanID, com.revrobotics.spark.SparkLowLevel.MotorType.kBrushless);
+  private final RelativeEncoder turretEncoder = turret.getEncoder();
   private final RelativeEncoder shooterEncoder = shooter.getEncoder();
   private final PIDController pid =
       new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD);
   private final SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(ShooterConstants.kS, ShooterConstants.kV);
-  private final PIDController turretPID = 
-      new PIDController(ShooterConstants.turretkP, ShooterConstants.turretkI, ShooterConstants.turretkD);
-  //private final SparkFlex shooter2 =
-   //   new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
+  private final PIDController turretPID =
+      new PIDController(
+          ShooterConstants.turretkP, ShooterConstants.turretkI, ShooterConstants.turretkD);
+  // private final SparkFlex shooter2 =
+  //   new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
   private final DigitalInput laser1 = new DigitalInput(0);
   private final DigitalInput laser2 = new DigitalInput(1);
   private double TargetRPM = 0;
+  public double TurretTargetAngle = 0;
 
   public ShooterIOSpark() {}
 
@@ -38,6 +40,7 @@ public class ShooterIOSpark implements ShooterIO {
   public void updateInputs(ShooterIOInputs inputs) {
     ifOk(shooter, shooterEncoder::getVelocity, (value) -> inputs.flywheelRPM = value);
     inputs.targetRPM = TargetRPM;
+    inputs.turretTargetAngle = TurretTargetAngle;
     pid.setTolerance(500);
     turretPID.setTolerance(3);
     inputs.laser1 = laser1.get();
@@ -61,6 +64,8 @@ public class ShooterIOSpark implements ShooterIO {
             / 6000.0);
     shooter.set(output);
     shooter2.set(-output);
+    double turretOutput = (turretPID.calculate(turretEncoder.getPosition(), TurretTargetAngle));
+    turret.set(turretOutput);
   }
 
   @Override
@@ -70,8 +75,9 @@ public class ShooterIOSpark implements ShooterIO {
   }
 
   @Override
-  public void setTargetRPM(double RPM) {
+  public void setTargetRPM(double RPM, double turretPos) {
     TargetRPM = RPM;
+    TurretTargetAngle = turretPos;
   }
 
   @Override
@@ -82,8 +88,9 @@ public class ShooterIOSpark implements ShooterIO {
   @Override
   public void setTargetRun(double RPM) {
     TargetRPM = RPM;
-    shooter.set((
-        pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM)) / 6000.0);
+    shooter.set(
+        (pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM))
+            / 6000.0);
   }
 
   @Override
@@ -98,8 +105,7 @@ public class ShooterIOSpark implements ShooterIO {
 
   @Override
   public void setTurretAngle(double angle) {
-    double output = 
-      (turretPID.calculate(turretEncoder.getPosition(), angle));
+    double output = (turretPID.calculate(turretEncoder.getPosition(), angle));
     turret.set(output);
   }
 }

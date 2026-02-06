@@ -144,10 +144,11 @@ public class RobotContainer {
     // controller.rightBumper().whileTrue(superstructure.launch());
     // controller.a().whileTrue(superstructure.eject());
     shooter.setDefaultCommand(shooter.runAtTarget());
-    controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
-    controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));
-    controller.b().whileTrue(new RunCommand(() -> shooter.setTargetRPM(0), shooter));
-  } 
+    controller.a().whileTrue(new RunCommand(() -> shooter.setTargetState(5000, 0), shooter));
+    controller.b().whileTrue(new RunCommand(() -> shooter.setTargetState(0, 0), shooter));
+    controller.x().whileTrue(new RunCommand(() -> shooter.setTargetState(0, 100), shooter));
+    controller.y().whileTrue(new RunCommand(() -> shooter.setTargetState(0, -100), shooter));
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
