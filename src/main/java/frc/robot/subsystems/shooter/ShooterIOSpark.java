@@ -2,9 +2,13 @@ package frc.robot.subsystems.shooter;
 
 import static frc.robot.util.SparkUtil.ifOk;
 
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -17,13 +21,23 @@ public class ShooterIOSpark implements ShooterIO {
       new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD);
   private final SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(ShooterConstants.kS, ShooterConstants.kV);
-  //private final SparkFlex shooter2 =
-   //   new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
+  private final SparkFlex shooter2 =
+      new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
   private final DigitalInput laser1 = new DigitalInput(0);
   private final DigitalInput laser2 = new DigitalInput(1);
   private double TargetRPM = 0;
 
-  public ShooterIOSpark() {}
+  private SparkBaseConfig globalBaseConfig;
+  private SparkBaseConfig shooter2Config;
+
+  public ShooterIOSpark() {
+    globalBaseConfig.idleMode(IdleMode.kCoast);
+    shooter2Config = globalBaseConfig.follow(ShooterConstants.shooterCanID, true);
+    shooter.configure(
+        globalBaseConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    shooter2.configure(
+        shooter2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
@@ -50,7 +64,6 @@ public class ShooterIOSpark implements ShooterIO {
         ((pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM))
             / 6000.0);
     shooter.set(output);
-    //shooter2.set(-output);
   }
 
   @Override
@@ -74,10 +87,5 @@ public class ShooterIOSpark implements ShooterIO {
     TargetRPM = RPM;
     shooter.setVoltage(
         pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM));
-  }
-
-  @Override
-  public void setSecondFlywheel(double speed) {
-    //shooter2.set(speed);
   }
 }

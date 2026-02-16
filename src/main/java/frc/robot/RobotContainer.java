@@ -147,7 +147,7 @@ public class RobotContainer {
     controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
     controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));
     controller.b().whileTrue(new RunCommand(() -> shooter.setTargetRPM(0), shooter));
-  } 
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
