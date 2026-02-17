@@ -27,6 +27,4 @@ public interface ShooterIO {
   public default void setTargetRun(double RPM) {}
 
   public default void runShooter(double speed) {}
-
-  public default void setSecondFlywheel(double speed) {}
 }

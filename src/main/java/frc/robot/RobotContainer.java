@@ -12,6 +12,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIOSim;
+import frc.robot.subsystems.indexer.IndexerIOSpark;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
@@ -26,8 +30,8 @@ import frc.robot.subsystems.shooter.ShooterIOSpark;
 public class RobotContainer {
   // Subsystems
   // private final Drive drive;
-  // private final Superstructure superstructure;
   private final Shooter shooter;
+  private final Indexer indexer;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -47,8 +51,8 @@ public class RobotContainer {
         //         new ModuleIOSpark(1),
         //         new ModuleIOSpark(2),
         //         new ModuleIOSpark(3));
-        // superstructure = new Superstructure(new SuperstructureIOTalonSRX());
         shooter = new Shooter(new ShooterIOSpark());
+        indexer = new Indexer(new IndexerIOSpark());
         break;
 
       case SIM:
@@ -60,8 +64,8 @@ public class RobotContainer {
         //         new ModuleIOSim(),
         //         new ModuleIOSim(),
         //         new ModuleIOSim());
-        // // superstructure = new Superstructure(new SuperstructureIOSim());
         shooter = new Shooter(new ShooterIOSim());
+        indexer = new Indexer(new IndexerIOSim());
         break;
 
       default:
@@ -73,13 +77,12 @@ public class RobotContainer {
         //         new ModuleIO() {},
         //         new ModuleIO() {},
         //         new ModuleIO() {});
-        // superstructure = new Superstructure(new SuperstructureIO() {});
         shooter = new Shooter(new ShooterIO() {});
+        indexer = new Indexer(new IndexerIO() {});
         break;
     }
 
     // Set up auto routines
-    // NamedCommands.registerCommand("Launch", superstructure.launch().withTimeout(6.0));
     // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -139,14 +142,11 @@ public class RobotContainer {
     //                 drive)
     //             .ignoringDisable(true));
 
-    // Control bindings for superstructure
-    // controller.leftBumper().whileTrue(superstructure.intake());
-    // controller.rightBumper().whileTrue(superstructure.launch());
-    // controller.a().whileTrue(superstructure.eject());
-    shooter.setDefaultCommand(shooter.runAtTarget());
-    controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
-    controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));
-    controller.b().whileTrue(new RunCommand(() -> shooter.setTargetRPM(0), shooter));
+    // shooter.setDefaultCommand(shooter.runAtTarget());
+    indexer.setDefaultCommand(new RunCommand(() -> indexer.setSpeed(1), indexer));
+    // controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
+    // controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));
+    // controller.b().whileTrue(new RunCommand(() -> shooter.setTargetRPM(0), shooter));
   }
 
   /**

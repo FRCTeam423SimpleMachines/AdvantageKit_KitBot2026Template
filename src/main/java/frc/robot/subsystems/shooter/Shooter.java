@@ -24,10 +24,6 @@ public class Shooter extends SubsystemBase {
     io.setTargetRPM(RPM);
   }
 
-  public void runSecondFlywheel(double speed) {
-    io.setSecondFlywheel(speed);
-  }
-
   public Command runAtTarget() {
     return run(() -> io.runAtTarget());
   }
