@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,8 +23,8 @@ public class Shooter extends SubsystemBase {
     io.setTargetRPM(RPM);
   }
 
-  public Command runAtTarget() {
-    return run(() -> io.runAtTarget());
+  public void runAtTarget(double RPM) {
+    io.runAtTarget(RPM);
   }
 
   @Override

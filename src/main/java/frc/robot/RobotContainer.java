@@ -142,7 +142,7 @@ public class RobotContainer {
     //                 drive)
     //             .ignoringDisable(true));
 
-    // shooter.setDefaultCommand(shooter.runAtTarget());
+    shooter.setDefaultCommand(new RunCommand(() -> shooter.runAtTarget(2000), shooter));
     indexer.setDefaultCommand(new RunCommand(() -> indexer.setSpeed(1), indexer));
     // controller.a().whileTrue(new RunCommand(() -> shooter.runShooter(-1.0), shooter));
     // controller.x().whileTrue(new RunCommand(() -> shooter.runShooter(1.0), shooter));

@@ -5,12 +5,13 @@ import static frc.robot.util.SparkUtil.*;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DigitalInput;
 import java.util.function.DoubleSupplier;
 
@@ -18,10 +19,7 @@ public class ShooterIOSpark implements ShooterIO {
   private final SparkFlex shooter =
       new SparkFlex(ShooterConstants.shooterCanID, MotorType.kBrushless);
   private final RelativeEncoder shooterEncoder = shooter.getEncoder();
-  private final PIDController pid =
-      new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD);
-  private final SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(ShooterConstants.kS, ShooterConstants.kV);
+  private final SparkClosedLoopController shooterController = shooter.getClosedLoopController();
   private final SparkFlex shooter2 =
       new SparkFlex(ShooterConstants.secondShooterCanID, MotorType.kBrushless);
   private final RelativeEncoder shooter2Encoder = shooter2.getEncoder();
@@ -35,6 +33,13 @@ public class ShooterIOSpark implements ShooterIO {
     // Build base config for shooter motors and a follower config for the second motor
     var base = new SparkFlexConfig();
     base.idleMode(IdleMode.kCoast).voltageCompensation(12.0);
+    base.signals.appliedOutputPeriodMs(20).busVoltagePeriodMs(20).outputCurrentPeriodMs(20);
+    base.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .pid(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD)
+        .feedForward
+        .kV(ShooterConstants.kV)
+        .kA(ShooterConstants.kA);
 
     // Create a follower config based on base that follows the leader's CAN ID
     SparkFlexConfig follower = new SparkFlexConfig();
@@ -75,7 +80,6 @@ public class ShooterIOSpark implements ShooterIO {
         (values) -> {});
     ifOk(shooter, shooter::getOutputCurrent, (value) -> {});
     inputs.targetRPM = TargetRPM;
-    pid.setTolerance(500);
     inputs.laser1 = laser1.get();
     inputs.laser2 = laser2.get();
   }
@@ -92,16 +96,13 @@ public class ShooterIOSpark implements ShooterIO {
 
   @Override
   public void runAtTarget() {
-    double output =
-        ((pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM))
-            / 6000.0);
-    shooter.set(output);
+    // Feedforward is configured in the motor closed-loop config; use the controller's setpoint
+    shooterController.setSetpoint(TargetRPM, ControlType.kMAXMotionVelocityControl);
   }
 
   @Override
   public void runAtTarget(double RPM) {
-    shooter.set(
-        (pid.calculate(shooterEncoder.getVelocity(), RPM) + feedforward.calculate(RPM)) / 6000.0);
+    shooterController.setSetpoint(RPM, ControlType.kMAXMotionVelocityControl);
   }
 
   @Override
@@ -117,7 +118,6 @@ public class ShooterIOSpark implements ShooterIO {
   @Override
   public void setTargetRun(double RPM) {
     TargetRPM = RPM;
-    shooter.setVoltage(
-        pid.calculate(shooterEncoder.getVelocity(), TargetRPM) + feedforward.calculate(TargetRPM));
+    shooterController.setSetpoint(RPM, ControlType.kMAXMotionVelocityControl);
   }
 }
